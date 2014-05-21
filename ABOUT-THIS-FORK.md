@@ -8,7 +8,7 @@ ABOUT THIS FORK
 
 2. Add another service [ifconfig.me](http://ifconfig.me/ip) in case that [ipecho.net](http://ipecho.net/plain) fails. 
 
-3. Extract the `easy-rsa` customization logic to a single `myvar` file instead of being hardcoded `sed` command in `setup.sh`.
+3. Extract the `easy-rsa` customization logic to a single `myvars` file instead of being hardcoded `sed` command in `setup.sh`.
 
 
 ## Tested platforms
