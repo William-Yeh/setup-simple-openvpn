@@ -213,18 +213,19 @@ sh /etc/rc.local
 #cache the result so this can be tested safely without hitting any limits
 
 function find_external_ip() {
+  local __resultvar=$1
 
   local ip=`wget --timeout=10 --tries=3 -q -O - http://ifconfig.me/ip`
-  if [ $? -eq 0 ]; then
-    return $ip
+  if [ $? -ne 0 ]; then
+    ip=`wget --timeout=10 --tries=3 -q -O - http://ipecho.net/plain`
   fi
 
-  ip=`wget --timeout=10 --tries=3 -q -O - http://ipecho.net/plain`
-  if [ $? -eq 0 ]; then
-    return $ip
-  fi
 
-  return $ip
+  if [[ "$__resultvar" ]]; then
+    eval $__resultvar="'$ip'"
+  else
+    echo "$ip"
+  fi
 }
 
 
@@ -234,7 +235,7 @@ then
   echo "Using cached external ip address"
 else
   echo "Detecting external ip address"
-  IP=find_external_ip
+  find_external_ip IP
   #IP=`wget -q -O - http://ipecho.net/plain`
   echo "$IP" > "$HOME/.my.ip"
 fi

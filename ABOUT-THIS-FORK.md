@@ -32,7 +32,7 @@ Google Compute Engine
 2. Clone the project:
 
    ```
-   $ git clone git@github.com:William-Yeh/setup-simple-openvpn.git
+   $ git clone https://github.com/William-Yeh/setup-simple-openvpn.git
    ```
 
 3. Edit the `myvars` file:
