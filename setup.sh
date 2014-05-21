@@ -234,7 +234,7 @@ then
   echo "Using cached external ip address"
 else
   echo "Detecting external ip address"
-  IP=find_external_ip()
+  IP=find_external_ip
   #IP=`wget -q -O - http://ipecho.net/plain`
   echo "$IP" > "$HOME/.my.ip"
 fi
