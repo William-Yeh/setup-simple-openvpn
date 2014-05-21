@@ -159,6 +159,7 @@ mkdir -p $OPENVPN || { echo "Cannot mkdir $OPENVPN, aborting!"; exit 1; }
 
 #openvpn config files and easy-rsa tool
 cp -r easy-rsa $OPENVPN/
+cp myvars      $OPENVPN/easy-rsa
 cp template-server-config $OPENVPN/openvpn.conf
 sed -i -e "s/VPN_PROTO/$PROTO/" -e "s/VPN_PORT/$PORT/" $OPENVPN/openvpn.conf
 
@@ -191,8 +192,8 @@ sh /etc/rc.local
 #setup keys
 ( cd $OPENVPN/easy-rsa || { echo "Cannot cd into $OPENVPN/easy-rsa, aborting!"; exit 1; }
   [ -d keys ] && { echo "easy-rsa/keys directory already exists, aborting!"; exit 1; }
-  cp vars myvars
-  sed -i -e 's/Fort-Funston/$ME/' -e 's/SanFrancisco/Simple OpenVPN server/' myvars
+  #cp vars myvars
+  #sed -i -e 's/Fort-Funston/$ME/' -e 's/SanFrancisco/Simple OpenVPN server/' myvars
   . ./myvars
   ./clean-all
   ./build-dh
@@ -210,13 +211,31 @@ sh /etc/rc.local
 
 #first find out external ip 
 #cache the result so this can be tested safely without hitting any limits
+
+function find_external_ip() {
+
+  local ip=`wget --timeout=10 --tries=3 -q -O - http://ifconfig.me/ip`
+  if [ $? -eq 0 ]; then
+    return $ip
+  fi
+
+  ip=`wget --timeout=10 --tries=3 -q -O - http://ipecho.net/plain`
+  if [ $? -eq 0 ]; then
+    return $ip
+  fi
+
+  return $ip
+}
+
+
 if [ `find "$HOME/.my.ip" -mmin -5 2>/dev/null` ]
 then
   IP=`cat "$HOME/.my.ip" | tr -cd [0-9].`
   echo "Using cached external ip address"
 else
   echo "Detecting external ip address"
-  IP=`wget -q -O - http://ipecho.net/plain`
+  IP=find_external_ip()
+  #IP=`wget -q -O - http://ipecho.net/plain`
   echo "$IP" > "$HOME/.my.ip"
 fi
 
