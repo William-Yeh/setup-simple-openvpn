@@ -10,6 +10,9 @@ ABOUT THIS FORK
 
 3. Extract the `easy-rsa` customization logic to a single `myvars` file instead of being hardcoded `sed` command in `setup.sh`.
 
+4. Add: `gce-tools` to setup "split tunneling" for GCE. 
+
+
 
 ## Tested platforms
 
@@ -48,7 +51,18 @@ Google Compute Engine
    $ rm -rf /etc/openvpn
    ```
 
-5. Execute the `setup.sh` command:
+5. If you want to establish a VPN service that only routes traffic for GCE instances ("split tunneling"):
+
+   ```
+   $ cd gce-tools
+   $ ./add-gce-ip-ranges.sh
+   $ cd ..
+   ```
+   
+   Paste the output into `template-gce-server-config`, and re-link the `template-server-config` to this file.
+   
+
+6. Execute the `setup.sh` command:
 
    ```
    $ sudo sh setup.sh

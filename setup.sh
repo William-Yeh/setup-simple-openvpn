@@ -25,7 +25,7 @@
 #                use http://ipecho.net/plain - http://ipecho.net/developers.html
 #    2013-10-06: add port, protocol and server name as optional parameters
 
-#do not use any funny characters here, just lower case a-z. 
+#do not use any funny characters here, just lower case a-z.
 
 OPENVPN='/etc/openvpn'
 
@@ -94,7 +94,7 @@ TEST=`expr length "$3"`
 if [ $TEST -ge 64 ]
 then
   echo "Server name must be less than 64 characters."
-  #it's used in the certificate and config file names 
+  #it's used in the certificate and config file names
   EXIT=1
 fi
 
@@ -122,7 +122,7 @@ then
   exit 1
 fi
 
-if [ `id -u` -ne 0 ] 
+if [ `id -u` -ne 0 ]
 then
   echo "Need root, try with sudo"
   exit 0
@@ -141,7 +141,7 @@ elif which yum 2>/dev/null
 then
   yum -y install openvpn zip || {
     echo "============================================================"
-    echo "Could not install openvpn and zip with yum." 
+    echo "Could not install openvpn and zip with yum."
     echo "Enable EPEL repository?"
     echo "See http://fedoraproject.org/wiki/EPEL"
     echo "============================================================"
@@ -155,18 +155,66 @@ else
 fi
 
 
+
+#first find out external ip
+#cache the result so this can be tested safely without hitting any limits
+function find_external_ip() {
+  local __resultvar=$1
+
+  local ip=`wget --timeout=10 --tries=3 -q -O - http://ifconfig.me/ip`
+  if [ $? -ne 0 ]; then
+    ip=`wget --timeout=10 --tries=3 -q -O - http://ipecho.net/plain`
+  fi
+
+
+  if [[ "$__resultvar" ]]; then
+    eval $__resultvar="'$ip'"
+  else
+    echo "$ip"
+  fi
+}
+
+if [ `find "$HOME/.my.ip" -mmin -5 2>/dev/null` ]
+then
+  IP=`cat "$HOME/.my.ip" | tr -cd [0-9].`
+  echo "Using cached external ip address"
+else
+  echo "Detecting external ip address"
+  find_external_ip IP
+  #IP=`wget -q -O - http://ipecho.net/plain`
+  echo "$IP" > "$HOME/.my.ip"
+fi
+
+if [ "x$IP" = "x" ]
+then
+  IP="UNKNOWN-ADDRESS"
+  echo "============================================================"
+  echo "  !!!  COULD NOT DETECT SERVER EXTERNAL IP ADDRESS  !!!"
+  echo "============================================================"
+  echo "Make sure you edit the $ME.ovpn file before trying to use it"
+  echo "Search 'UNKNOWN-ADDRESS' and replace it with the correct ip address"
+else
+  echo "============================================================"
+  echo "Detected your server external ip address: $IP"
+  echo "============================================================"
+  echo "Make sure it is correct before using the client configuration files!"
+fi
+sleep 2
+
+
+
 mkdir -p $OPENVPN || { echo "Cannot mkdir $OPENVPN, aborting!"; exit 1; }
 
 #openvpn config files and easy-rsa tool
 cp -r easy-rsa $OPENVPN/
 cp myvars      $OPENVPN/easy-rsa
 cp template-server-config $OPENVPN/openvpn.conf
-sed -i -e "s/VPN_PROTO/$PROTO/" -e "s/VPN_PORT/$PORT/" $OPENVPN/openvpn.conf
+sed -i -e "s/VPN_PROTO/$PROTO/" -e "s/VPN_PORT/$PORT/" -e "s/VPN_SERVER_ADDRESS/$IP/"  $OPENVPN/openvpn.conf
 
 if grep -q "cat <<EOL >> /etc/ssh/sshd_config" /etc/rc.d/rc.local
 then
   echo "Note: working around a bug in Amazon EC2 RHEL 6.4 image"
-  sed -i.bak 19,21d /etc/rc.d/rc.local 
+  sed -i.bak 19,21d /etc/rc.d/rc.local
 fi
 
 #ubuntu has exit 0 at the end of the file.
@@ -220,55 +268,8 @@ sh /etc/rc.local
 # ./pkitool [unique-client-name]
 #by default this server allows multiple connections per client certificate
 
+
 #generate the client config file
-
-#first find out external ip 
-#cache the result so this can be tested safely without hitting any limits
-
-function find_external_ip() {
-  local __resultvar=$1
-
-  local ip=`wget --timeout=10 --tries=3 -q -O - http://ifconfig.me/ip`
-  if [ $? -ne 0 ]; then
-    ip=`wget --timeout=10 --tries=3 -q -O - http://ipecho.net/plain`
-  fi
-
-
-  if [[ "$__resultvar" ]]; then
-    eval $__resultvar="'$ip'"
-  else
-    echo "$ip"
-  fi
-}
-
-
-if [ `find "$HOME/.my.ip" -mmin -5 2>/dev/null` ]
-then
-  IP=`cat "$HOME/.my.ip" | tr -cd [0-9].`
-  echo "Using cached external ip address"
-else
-  echo "Detecting external ip address"
-  find_external_ip IP
-  #IP=`wget -q -O - http://ipecho.net/plain`
-  echo "$IP" > "$HOME/.my.ip"
-fi
-
-if [ "x$IP" = "x" ]
-then
-  IP="UNKNOWN-ADDRESS"
-  echo "============================================================"
-  echo "  !!!  COULD NOT DETECT SERVER EXTERNAL IP ADDRESS  !!!"
-  echo "============================================================"
-  echo "Make sure you edit the $ME.ovpn file before trying to use it"
-  echo "Search 'UNKNOWN-ADDRESS' and replace it with the correct ip address"
-else
-  echo "============================================================"
-  echo "Detected your server external ip address: $IP"
-  echo "============================================================"
-  echo "Make sure it is correct before using the client configuration files!"
-fi
-sleep 2
-
 TMPDIR=`mktemp -d --tmpdir=. openvpn.XXX` || { echo "Cannot make temporary directory, aborting!"; exit 1; }
 
 cp template-client-config $TMPDIR/$ME.ovpn
