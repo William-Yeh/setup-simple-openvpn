@@ -173,8 +173,21 @@ fi
 sed -i '/^exit 0/d' /etc/rc.local
 
 #set up nat for the vpn
-cat >> /etc/rc.local << END
+
+cat > /etc/sysctl.d/90-openvpn.conf << SYSCTL_END
+# filename: /etc/sysctl.d/90-openvpn.conf
+# override Google-recommended kernel parameters (11-gce-network-security.conf)
+net.ipv4.ip_forward = 1
+net.ipv4.conf.all.send_redirects=1
+net.ipv4.conf.default.send_redirects=1
+SYSCTL_END
+
 echo 1 > /proc/sys/net/ipv4/ip_forward
+echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects
+echo 1 > /proc/sys/net/ipv4/conf/default/send_redirects
+
+cat >> /etc/rc.local << END
+#echo 1 > /proc/sys/net/ipv4/ip_forward
 iptables -I INPUT -p $PROTO --dport $PORT -j ACCEPT
 
 iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -d 0.0.0.0/0 -o eth0 -j MASQUERADE

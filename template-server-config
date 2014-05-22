@@ -287,7 +287,7 @@ status openvpn-status.log
 # while "log-append" will append to it.  Use one
 # or the other (but not both).
 ;log         openvpn.log
-;log-append  openvpn.log
+log-append   /var/log/openvpn.log
 
 # Set the appropriate level of log
 # file verbosity.
