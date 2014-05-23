@@ -202,16 +202,18 @@ fi
 sleep 2
 
 
+LOGFILE_DIR=/var/log/openvpn
 
-mkdir -p $OPENVPN || { echo "Cannot mkdir $OPENVPN, aborting!"; exit 1; }
+mkdir -p $OPENVPN     || { echo "Cannot mkdir $OPENVPN, aborting!"; exit 1; }
+mkdir -p $LOGFILE_DIR || { echo "Cannot mkdir $LOGFILE_DIR, aborting!"; exit 1; }
 
 RC_LOCAL=/etc/rc.d/rc.local
 
 
 #openvpn config files and easy-rsa tool
-cp -r easy-rsa $OPENVPN/
-cp myvars      $OPENVPN/easy-rsa
-cp template-server-config $OPENVPN/openvpn.conf
+cp -r easy-rsa                $OPENVPN/
+cp    myvars                  $OPENVPN/easy-rsa
+cp    template-server-config  $OPENVPN/openvpn.conf
 sed -i -e "s/VPN_PROTO/$PROTO/" -e "s/VPN_PORT/$PORT/" -e "s/VPN_SERVER_ADDRESS/$IP/"  $OPENVPN/openvpn.conf
 
 if grep -q "cat <<EOL >> /etc/ssh/sshd_config"  $RC_LOCAL
@@ -255,6 +257,32 @@ iptables -t nat -P PREROUTING ACCEPT
 iptables -t nat -P OUTPUT ACCEPT
 END
 sh $RC_LOCAL
+
+
+# logrotate for OpenVPN
+
+cat > /etc/logrotate.d/openvpn << LOGROTATE_END
+# Logrotate file for OpenVPN
+#
+# @location /etc/logrotate.d/openvpn
+# @see http://comments.gmane.org/gmane.network.openvpn.user/22649
+#
+
+/var/log/openvpn/openvpn.log {
+    size 10M
+    rotate 9
+    missingok
+    copytruncate
+    compress
+    delaycompress
+    notifempty
+    sharedscripts
+    postrotate
+       /etc/init.d/openvpn reload
+    endscript
+}
+LOGROTATE_END
+
 
 #setup keys
 ( cd $OPENVPN/easy-rsa || { echo "Cannot cd into $OPENVPN/easy-rsa, aborting!"; exit 1; }

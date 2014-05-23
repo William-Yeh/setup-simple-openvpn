@@ -277,7 +277,8 @@ persist-tun
 # Output a short status file showing
 # current connections, truncated
 # and rewritten every minute.
-status openvpn-status.log
+;status openvpn-status.log
+status /var/log/openvpn/status.log
 
 # By default, log messages will go to the syslog (or
 # on Windows, if running as a service, they will go to
@@ -287,7 +288,7 @@ status openvpn-status.log
 # while "log-append" will append to it.  Use one
 # or the other (but not both).
 ;log         openvpn.log
-log-append   /var/log/openvpn.log
+log-append   /var/log/openvpn/openvpn.log
 
 # Set the appropriate level of log
 # file verbosity.
