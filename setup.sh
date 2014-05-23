@@ -83,10 +83,10 @@ else
   ME=$3
 fi
 
-TEST=`echo "$3" | tr -d [a-zA-Z]`
+TEST=`echo "$3" | tr -d [a-zA-Z0-9]`
 if [ "x$TEST" != "x" ]
 then
-  echo "Server name must only contain letters a-z."
+  echo "Server name must only contain letters a-z and numbers 0-9."
   EXIT=1
 fi
 
