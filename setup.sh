@@ -205,16 +205,19 @@ sleep 2
 
 mkdir -p $OPENVPN || { echo "Cannot mkdir $OPENVPN, aborting!"; exit 1; }
 
+RC_LOCAL=/etc/rc.d/rc.local
+
+
 #openvpn config files and easy-rsa tool
 cp -r easy-rsa $OPENVPN/
 cp myvars      $OPENVPN/easy-rsa
 cp template-server-config $OPENVPN/openvpn.conf
 sed -i -e "s/VPN_PROTO/$PROTO/" -e "s/VPN_PORT/$PORT/" -e "s/VPN_SERVER_ADDRESS/$IP/"  $OPENVPN/openvpn.conf
 
-if grep -q "cat <<EOL >> /etc/ssh/sshd_config" /etc/rc.d/rc.local
+if grep -q "cat <<EOL >> /etc/ssh/sshd_config"  $RC_LOCAL
 then
   echo "Note: working around a bug in Amazon EC2 RHEL 6.4 image"
-  sed -i.bak 19,21d /etc/rc.d/rc.local
+  sed -i.bak 19,21d   $RC_LOCAL
 fi
 
 #ubuntu has exit 0 at the end of the file.
@@ -234,8 +237,11 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects
 echo 1 > /proc/sys/net/ipv4/conf/default/send_redirects
 
-cat >> /etc/rc.local << END
-#echo 1 > /proc/sys/net/ipv4/ip_forward
+cat >> $RC_LOCAL << END
+
+#
+# for OpenVPN
+#
 iptables -I INPUT -p $PROTO --dport $PORT -j ACCEPT
 
 iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -d 0.0.0.0/0 -o eth0 -j MASQUERADE
@@ -248,7 +254,7 @@ iptables -t nat -P POSTROUTING ACCEPT
 iptables -t nat -P PREROUTING ACCEPT
 iptables -t nat -P OUTPUT ACCEPT
 END
-sh /etc/rc.local
+sh $RC_LOCAL
 
 #setup keys
 ( cd $OPENVPN/easy-rsa || { echo "Cannot cd into $OPENVPN/easy-rsa, aborting!"; exit 1; }
