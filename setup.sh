@@ -305,6 +305,8 @@ LOGROTATE_END
 
 #generate the client config file
 TMPDIR=`mktemp -d --tmpdir=. openvpn.XXX` || { echo "Cannot make temporary directory, aborting!"; exit 1; }
+echo $TMPDIR > .default-client-dir
+
 
 cp template-client-config $TMPDIR/$ME.ovpn
 cd $TMPDIR || { echo "Cannot cd into a temporary directory, aborting!"; exit 1; }

@@ -12,6 +12,8 @@ ABOUT THIS FORK
 
 4. Add: `gce-tools` to setup "split tunneling" for GCE. 
 
+5. Add: `add-user.sh` tool to facilitate the process of adding new user using current server configuration.
+
 
 
 ## Tested platforms
@@ -26,7 +28,7 @@ Google Compute Engine
 ## Installation instructions
 
 
-1. Change director to the parent directory to be installed. For example:
+1. Change to the parent directory to be installed. For example:
 
    ```
    $ cd /opt
@@ -41,7 +43,7 @@ Google Compute Engine
 3. Edit the `myvars` file:
 
    ```
-   $ cd setup-simple-openvpn.git
+   $ cd setup-simple-openvpn
    $ vi myvars
    ```
 
@@ -75,6 +77,24 @@ Google Compute Engine
    ```
 
 For more details, see the original document `README.rst`.
+
+
+
+## Adding a new user
+
+1. Change to the project directory.
+
+2. Execute the `add-user.sh` command:
+
+   ```
+   $ ./add-user.sh  USERNAME
+   ```
+
+3. Test the user configuration file:
+
+   ```
+   $ unzip -t openvpn.USERNAME/*.zip
+   ```
 
 
 
