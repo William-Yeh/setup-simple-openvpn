@@ -227,6 +227,7 @@ sed -i '/^exit 0/d' /etc/rc.local
 
 #set up nat for the vpn
 
+mkdir -p /etc/sysctl.d
 cat > /etc/sysctl.d/90-openvpn.conf << SYSCTL_END
 # filename: /etc/sysctl.d/90-openvpn.conf
 # override Google-recommended kernel parameters (11-gce-network-security.conf)
@@ -261,6 +262,7 @@ sh $RC_LOCAL
 
 # logrotate for OpenVPN
 
+mkdir -p /etc/logrotate.d
 cat > /etc/logrotate.d/openvpn << LOGROTATE_END
 # Logrotate file for OpenVPN
 #
