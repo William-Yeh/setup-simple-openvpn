@@ -10,7 +10,7 @@ ABOUT THIS FORK
 
 3. Extract the `easy-rsa` customization logic to a single `myvars` file instead of being hardcoded `sed` command in `setup.sh`.
 
-4. Add: `gce-tools` to setup "split tunneling" for GCE. 
+4. Add: `ec2-tools` and `gce-tools` to setup "split tunneling" for EC2 and GCE. 
 
 5. Add: `add-user.sh` tool to facilitate the process of adding new user using current server configuration.
 
@@ -80,7 +80,14 @@ Amazon EC2
    ```
    
    Paste the output into `template-gce-server-config`, and re-link the `template-server-config` to this file.
-   
+
+   Ditto for Amazon EC2:
+
+   ```shell
+   $ cd ec2-tools
+   $ ./add-ec2-ip-ranges.sh
+   $ cd ..
+   ```
 
 6. Execute the `setup.sh` command:
 
