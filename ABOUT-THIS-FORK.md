@@ -112,7 +112,7 @@ For more details, see the original document [`README.rst`](README.rst).
 2. Execute the `add-user.sh` command:
 
    ```shell
-   $ ./add-user.sh  USERNAME
+   $ sudo ./add-user.sh  USERNAME
    ```
 
 3. Test the user configuration file:
