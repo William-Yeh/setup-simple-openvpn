@@ -108,7 +108,8 @@ def report(ip_info):
         #print region, " ", ranges
         for item in ranges:
             #print item
-            print 'push "route ', item["first"], "  ", item["last"], '"'
+            print item["cidr"]
+            #print 'push "route ', item["first"], "  ", item["last"], '"'
 
 
 if __name__ == '__main__':
