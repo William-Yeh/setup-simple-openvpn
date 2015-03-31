@@ -89,19 +89,19 @@ Amazon EC2
    $ cd ..
    ```
 
-6. Execute the `setup.sh` command:
+6. Execute the `normal-setup.sh` command:
 
    ```shell
-   $ sudo sh setup.sh
+   $ sudo bash normal-setup.sh
    ``` 
    
-   If you need a different port, protocol, and name, take a look at command-line argument of `setup.sh`:
+   If you need a different port, protocol, and name, take a look at command-line argument of `normal-setup.sh`:
    
    ```shell
-   $ sh setup.sh -h   
+   $ bash normal-setup.sh -h   
    ```
 
-For more details, see the original document [`README.rst`](README.rst).
+For more details, see the original document [`README.md`](README.md).
 
 
 
