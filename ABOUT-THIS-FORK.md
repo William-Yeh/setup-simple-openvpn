@@ -21,11 +21,11 @@ ABOUT THIS FORK
 
 Google Compute Engine
 
- - CentOS 6.5
+ - CentOS 6.6, 6.5
 
 Amazon EC2
 
- - CentOS 6.5
+ - CentOS 6.6, 6.5
 
 
 
