@@ -161,9 +161,11 @@ fi
 function find_external_ip() {
   local __resultvar=$1
 
-  local ip=`wget --timeout=10 --tries=3 -q -O - http://ifconfig.me/ip`
+  local ip=`curl --connect-timeout 10 --retry 3  http://ifconfig.me/ip`
+  #local ip=`wget --timeout=10 --tries=3 -q -O - http://ifconfig.me/ip`
+
   if [ $? -ne 0 ]; then
-    ip=`curl icanhazip.com`
+    ip=`curl --connect-timeout 10 --retry 3  icanhazip.com`
   fi
 
 

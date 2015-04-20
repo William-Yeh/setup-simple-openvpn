@@ -32,34 +32,28 @@ Amazon EC2
 
 ## Installation instructions
 
+### A. Preparation
 
-0. Prepare CentOS environment:
+1. Prepare CentOS environment:
 
    ```shell
    $ # install EPEL repository (for OpenVPN)
    $ sudo rpm -iv http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 
    $ # install utilities
-   $ sudo yum install git wget
+   $ sudo yum install git curl
    ```
 
-1. Change to the parent directory to be installed. For example:
+2. Change to the parent directory to be installed. For example:
 
    ```shell
    $ cd /opt
    ```
 
-2. Clone the project:
+3. Clone the project:
 
    ```shell
    $ git clone https://github.com/William-Yeh/setup-simple-openvpn.git
-   ```
-
-3. Edit the `myvars` file:
-
-   ```shell
-   $ cd setup-simple-openvpn
-   $ vi myvars
    ```
 
 4. Clean old configuration, if any:
@@ -71,34 +65,53 @@ Amazon EC2
    $ sudo vi /etc/rc.d/rc.local
    ```
 
-5. If you want to establish a VPN service that only routes traffic for GCE instances ("split tunneling"):
+
+### B. Edit configurations
+
+1. Edit the `myvars` file for `easy-rsa` parameter settings:
 
    ```shell
-   $ cd gce-tools
-   $ ./add-gce-ip-ranges.sh
-   $ cd ..
-   ```
-   
-   Paste the output into `template-gce-server-config`, and re-link the `template-server-config` to this file.
-
-   Ditto for Amazon EC2:
-
-   ```shell
-   $ cd ec2-tools
-   $ ./add-ec2-ip-ranges.sh
-   $ cd ..
+   $ cd setup-simple-openvpn
+   $ cp myvars.default  myvars
+   $ vi myvars
    ```
 
-6. Execute the `normal-setup.sh` command:
+2. Edit the `template-server-config` file:
+
+   - Ordinary config:
+
+     ```shell
+     $ cp template-server-config.default  template-server-config
+     $ vi template-server-config
+     ```
+
+   - If you want to establish a VPN service that only routes traffic for Amazon EC2 ("*split tunneling*"):
+
+     ```shell
+     $ cp template-server-config.ec2  template-server-config
+     $ vi template-server-config
+     ```
+
+   - If "split tunneling" for GCE instances:
+
+     ```shell
+     $ cp template-server-config.gce  template-server-config
+     $ vi template-server-config
+     ```
+
+### C. Install!
+
+
+1. Execute the `normal-setup.sh` command:
 
    ```shell
-   $ sudo bash normal-setup.sh
+   $ sudo normal-setup.sh
    ``` 
    
    If you need a different port, protocol, and name, take a look at command-line argument of `normal-setup.sh`:
    
    ```shell
-   $ bash normal-setup.sh -h   
+   $ normal-setup.sh -h   
    ```
 
 For more details, see the original document [`README.md`](README.md).
