@@ -27,7 +27,7 @@ Amazon EC2
 
  - CentOS 6.6, 6.5
 
-
+ - Ubuntu 14.04 LTS
 
 
 ## Installation instructions

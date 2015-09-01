@@ -209,7 +209,13 @@ LOGFILE_DIR=/var/log/openvpn
 mkdir -p $OPENVPN     || { echo "Cannot mkdir $OPENVPN, aborting!"; exit 1; }
 mkdir -p $LOGFILE_DIR || { echo "Cannot mkdir $LOGFILE_DIR, aborting!"; exit 1; }
 
-RC_LOCAL=/etc/rc.d/rc.local
+RCD="rc.d/"
+if echo `uname -v` | grep -qi ubuntu
+then
+  echo "Ubuntu: no /etc/rc.d, we write to /etc/rc.local"
+  RCD=""
+fi
+RC_LOCAL=/etc/${RCD}rc.local
 
 
 #openvpn config files and easy-rsa tool
@@ -299,7 +305,7 @@ LOGROTATE_END
   ./pkitool --initca
   ./pkitool --server myserver
   ./pkitool client1-$ME
-  openvpn --genkey -secret ta.key
+  openvpn --genkey --secret ta.key
 )
 #for more client certificates:
 # cd easy-rsa
