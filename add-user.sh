@@ -109,9 +109,23 @@ function pack_client_conf() {
 
     (cd $TMPDIR || { echo "[ERROR] Cannot cd into a temporary directory, aborting!"; exit 1; }
         zip -j $CLIENT_CN.zip  *.ovpn *.crt *.key
+        cp $SERVER_NAME.ovpn $SERVER_NAME.certs.embedded.ovpn
+        echo "<ca>" >> $SERVER_NAME.certs.embedded.ovpn
+	sed -i -e '/<ca>/r ca-'$SERVER_NAME'.crt' $SERVER_NAME.certs.embedded.ovpn
+        echo "</ca>" >> $SERVER_NAME.certs.embedded.ovpn
+        echo "<cert>" >> $SERVER_NAME.certs.embedded.ovpn
+	sed -i -e '/<cert>/r '$CLIENT_CN'.crt' $SERVER_NAME.certs.embedded.ovpn
+        echo "</cert>" >> $SERVER_NAME.certs.embedded.ovpn
+        echo "<key>" >> $SERVER_NAME.certs.embedded.ovpn
+	sed -i -e '/<cert>/r '$CLIENT_CN'.key' $SERVER_NAME.certs.embedded.ovpn
+        echo "</key>" >> $SERVER_NAME.certs.embedded.ovpn
+        echo "<tls-auth>" >> $SERVER_NAME.certs.embedded.ovpn
+	sed -i -e '/<cert>/r ta.key' $SERVER_NAME.certs.embedded.ovpn
+        echo "</tls-auth>" >> $SERVER_NAME.certs.embedded.ovpn
         chmod -R a+rX .
     )
-
+    
+    
     echo "----"
     echo "Generated configuration files are in $TMPDIR/ !"
     echo "----"
