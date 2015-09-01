@@ -299,6 +299,7 @@ LOGROTATE_END
   ./pkitool --initca
   ./pkitool --server myserver
   ./pkitool client1-$ME
+  openvpn --genkey -secret ta.key
 )
 #for more client certificates:
 # cd easy-rsa

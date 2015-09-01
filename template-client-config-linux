@@ -113,7 +113,11 @@ ns-cert-type server
 # Select a cryptographic cipher.
 # If the cipher option is used on the server
 # then you must also specify it here.
-cipher BF-CBC
+tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256:TLS-DHE-RSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-128-CBC-SHA256
+cipher AES-256-CBC
+auth SHA384
+tls-version-min 1.2
+remote-cert-tls server
 
 # Enable compression on the VPN link.
 # Don't enable this unless it is also
