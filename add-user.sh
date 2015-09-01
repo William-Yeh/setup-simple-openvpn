@@ -117,10 +117,10 @@ function pack_client_conf() {
 	sed -i -e '/<cert>/r '$CLIENT_CN'.crt' $SERVER_NAME.certs.embedded.ovpn
         echo "</cert>" >> $SERVER_NAME.certs.embedded.ovpn
         echo "<key>" >> $SERVER_NAME.certs.embedded.ovpn
-	sed -i -e '/<cert>/r '$CLIENT_CN'.key' $SERVER_NAME.certs.embedded.ovpn
+	sed -i -e '/<key>/r '$CLIENT_CN'.key' $SERVER_NAME.certs.embedded.ovpn
         echo "</key>" >> $SERVER_NAME.certs.embedded.ovpn
         echo "<tls-auth>" >> $SERVER_NAME.certs.embedded.ovpn
-	sed -i -e '/<cert>/r ta.key' $SERVER_NAME.certs.embedded.ovpn
+	sed -i -e '/<tls-auth>/r '$keys_dir'/ta.key' $SERVER_NAME.certs.embedded.ovpn
         echo "</tls-auth>" >> $SERVER_NAME.certs.embedded.ovpn
         chmod -R a+rX .
     )
