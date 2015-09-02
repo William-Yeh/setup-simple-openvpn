@@ -331,6 +331,19 @@ sed -i -e "s/VPN_PROTO/$PROTO/" -e "s/VPN_PORT/$PORT/"  $ME.ovpn
 sed -i -e "s/VPN_SERVER_ADDRESS/$IP/" -e "s/client1/client1-$ME/" -e "s/^ca ca.crt/ca ca-$ME.crt/" linux-$ME.ovpn
 sed -i -e "s/VPN_PROTO/$PROTO/" -e "s/VPN_PORT/$PORT/"  linux-$ME.ovpn
 zip $ME-$IP.zip $ME.ovpn linux-$ME.ovpn ca-$ME.crt client1-$ME.key client1-$ME.crt ta.key
+cp $ME.ovpn $ME.certs.embedded.ovpn
+echo "<ca>" >> $ME.certs.embedded.ovpn
+sed -i -e '/<ca>/r ca-'$ME'.crt' $ME.certs.embedded.ovpn
+echo "</ca>" >> $ME.certs.embedded.ovpn
+echo "<cert>" >> $ME.certs.embedded.ovpn
+sed -i -e '/<cert>/r client1-'$ME'.crt' $ME.certs.embedded.ovpn
+echo "</cert>" >> $ME.certs.embedded.ovpn
+echo "<key>" >> $ME.certs.embedded.ovpn
+sed -i -e '/<key>/r client1-'$ME'.key' $ME.certs.embedded.ovpn
+echo "</key>" >> $ME.certs.embedded.ovpn
+echo "<tls-auth>" >> $ME.certs.embedded.ovpn
+sed -i -e '/<tls-auth>/r ta.key' $ME.certs.embedded.ovpn
+echo "</tls-auth>" >> $ME.certs.embedded.ovpn
 chmod -R a+rX .
 
 echo "----"
