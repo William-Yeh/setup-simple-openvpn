@@ -413,14 +413,15 @@ keepalive 10 120
 # a copy of this key.
 # The second parameter should be '0'
 # on the server and '1' on the clients.
-;tls-auth ta.key 0 # This file is secret
+tls-auth easy-rsa/keys/ta.key 0 # This file is secret
 
 # Select a cryptographic cipher.
 # This config item must be copied to
 # the client config file as well.
-cipher BF-CBC        # Blowfish (default)
-;cipher AES-128-CBC   # AES
-;cipher DES-EDE3-CBC  # Triple-DES
+tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256:TLS-DHE-RSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-128-CBC-SHA256
+cipher AES-256-CBC
+auth SHA384
+tls-version-min 1.2
 
 # Enable compression on the VPN link.
 # If you enable it here, you must also

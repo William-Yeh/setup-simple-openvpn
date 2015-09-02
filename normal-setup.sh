@@ -131,7 +131,7 @@ fi
 #install openvpn, zip and dependencies
 if which apt-get 2>/dev/null
 then
-   apt-get -y install openvpn zip || {
+   apt-get -y install openvpn zip curl || {
     echo "============================================================"
     echo "Could not install openvpn and zip with apt-get. Huh?"
     echo "============================================================"
@@ -139,7 +139,11 @@ then
   }
 elif which yum 2>/dev/null
 then
-  yum -y install openvpn zip || {
+  yum -y install epel-release || {
+    echo "Could not install epel-release"
+    exit 1
+  }
+  yum -y install openvpn zip curl || {
     echo "============================================================"
     echo "Could not install openvpn and zip with yum."
     echo "Enable EPEL repository?"
@@ -161,11 +165,11 @@ fi
 function find_external_ip() {
   local __resultvar=$1
 
-  local ip=`curl --connect-timeout 10 --retry 3  http://ifconfig.me/ip`
+  local ip=`curl --connect-timeout 10 --retry 3 http://icanhazip.com`
   #local ip=`wget --timeout=10 --tries=3 -q -O - http://ifconfig.me/ip`
 
   if [ $? -ne 0 ]; then
-    ip=`curl --connect-timeout 10 --retry 3  icanhazip.com`
+    ip=`curl --connect-timeout 10 --retry 3 http://myip.dnsomatic.com`
   fi
 
 
@@ -209,7 +213,13 @@ LOGFILE_DIR=/var/log/openvpn
 mkdir -p $OPENVPN     || { echo "Cannot mkdir $OPENVPN, aborting!"; exit 1; }
 mkdir -p $LOGFILE_DIR || { echo "Cannot mkdir $LOGFILE_DIR, aborting!"; exit 1; }
 
-RC_LOCAL=/etc/rc.d/rc.local
+RCD="rc.d/"
+if echo `uname -v` | grep -qi ubuntu
+then
+  echo "Ubuntu: no /etc/rc.d, we write to /etc/rc.local"
+  RCD=""
+fi
+RC_LOCAL=/etc/${RCD}rc.local
 
 
 #openvpn config files and easy-rsa tool
@@ -299,6 +309,7 @@ LOGROTATE_END
   ./pkitool --initca
   ./pkitool --server myserver
   ./pkitool client1-$ME
+  openvpn --genkey --secret keys/ta.key
 )
 #for more client certificates:
 # cd easy-rsa
@@ -316,13 +327,27 @@ cp template-client-config $TMPDIR/$ME.ovpn
 cp template-client-config-linux $TMPDIR/linux-$ME.ovpn
 cd $TMPDIR || { echo "Cannot cd into a temporary directory, aborting!"; exit 1; }
 
+cp $OPENVPN/easy-rsa/keys/ta.key .
 cp $OPENVPN/easy-rsa/keys/ca.crt "ca-$ME.crt"
 cp $OPENVPN/easy-rsa/keys/client1-$ME.key $OPENVPN/easy-rsa/keys/client1-$ME.crt .
 sed -i -e "s/VPN_SERVER_ADDRESS/$IP/" -e "s/client1/client1-$ME/" -e "s/^ca ca.crt/ca ca-$ME.crt/" $ME.ovpn
 sed -i -e "s/VPN_PROTO/$PROTO/" -e "s/VPN_PORT/$PORT/"  $ME.ovpn
 sed -i -e "s/VPN_SERVER_ADDRESS/$IP/" -e "s/client1/client1-$ME/" -e "s/^ca ca.crt/ca ca-$ME.crt/" linux-$ME.ovpn
 sed -i -e "s/VPN_PROTO/$PROTO/" -e "s/VPN_PORT/$PORT/"  linux-$ME.ovpn
-zip $ME-$IP.zip $ME.ovpn linux-$ME.ovpn ca-$ME.crt client1-$ME.key client1-$ME.crt
+zip $ME-$IP.zip $ME.ovpn linux-$ME.ovpn ca-$ME.crt client1-$ME.key client1-$ME.crt ta.key
+cp $ME.ovpn $ME.certs.embedded.ovpn
+echo "<ca>" >> $ME.certs.embedded.ovpn
+sed -i -e '/<ca>/r ca-'$ME'.crt' $ME.certs.embedded.ovpn
+echo "</ca>" >> $ME.certs.embedded.ovpn
+echo "<cert>" >> $ME.certs.embedded.ovpn
+sed -i -e '/<cert>/r client1-'$ME'.crt' $ME.certs.embedded.ovpn
+echo "</cert>" >> $ME.certs.embedded.ovpn
+echo "<key>" >> $ME.certs.embedded.ovpn
+sed -i -e '/<key>/r client1-'$ME'.key' $ME.certs.embedded.ovpn
+echo "</key>" >> $ME.certs.embedded.ovpn
+echo "<tls-auth>" >> $ME.certs.embedded.ovpn
+sed -i -e '/<tls-auth>/r ta.key' $ME.certs.embedded.ovpn
+echo "</tls-auth>" >> $ME.certs.embedded.ovpn
 chmod -R a+rX .
 
 echo "----"
@@ -334,9 +359,16 @@ echo "Make sure they are open in an external firewall if there is one."
 #enable openvpn at boot and start server!
 if which yum 2>/dev/null
 then
-  chkconfig openvpn on
+  if [ -d "/etc/systemd" ]; then
+    systemctl enable openvpn@openvpn.service 
+    service openvpn@openvpn start
+  else
+    chkconfig openvpn on
+    service openvpn start
+  fi
+else
+  #already enabled on debian/ubuntu after install. just start it.
+  service openvpn start
 fi
-
-service openvpn start
 
 exit 0

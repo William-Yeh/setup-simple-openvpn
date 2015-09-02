@@ -7,6 +7,11 @@
 USER_NAME=$1
 OPENVPN_CONF=/etc/openvpn
 
+if [ `id -u` -ne 0 ]
+then
+  echo "Need root, try with sudo"
+  exit 0
+fi
 
 function do_error_exit {
     echo { \"status\": $RETVAL, \"error_line\": $BASH_LINENO }
@@ -102,16 +107,30 @@ function pack_client_conf() {
     trap 'RETVAL=$?; echo "ERROR"; do_error_exit '  ERR
 
     local keys_dir="$OPENVPN_CONF/easy-rsa/keys"
-    cp $keys_dir/$CLIENT_CN.key  $keys_dir/$CLIENT_CN.crt  $TMPDIR
+    cp $keys_dir/$CLIENT_CN.key  $keys_dir/$CLIENT_CN.crt $keys_dir/ta.key $TMPDIR
     cp $DEFAULT_CLIENT_DIR/ca-*.crt           $TMPDIR
     cp $DEFAULT_CLIENT_DIR/$SERVER_NAME.ovpn  $TMPDIR/$SERVER_NAME.ovpn
     sed -i -e "s/client1/$USER_NAME/"         $TMPDIR/$SERVER_NAME.ovpn
 
     (cd $TMPDIR || { echo "[ERROR] Cannot cd into a temporary directory, aborting!"; exit 1; }
         zip -j $CLIENT_CN.zip  *.ovpn *.crt *.key
+        cp $SERVER_NAME.ovpn $SERVER_NAME.certs.embedded.ovpn
+        echo "<ca>" >> $SERVER_NAME.certs.embedded.ovpn
+	sed -i -e '/<ca>/r ca-'$SERVER_NAME'.crt' $SERVER_NAME.certs.embedded.ovpn
+        echo "</ca>" >> $SERVER_NAME.certs.embedded.ovpn
+        echo "<cert>" >> $SERVER_NAME.certs.embedded.ovpn
+	sed -i -e '/<cert>/r '$CLIENT_CN'.crt' $SERVER_NAME.certs.embedded.ovpn
+        echo "</cert>" >> $SERVER_NAME.certs.embedded.ovpn
+        echo "<key>" >> $SERVER_NAME.certs.embedded.ovpn
+	sed -i -e '/<key>/r '$CLIENT_CN'.key' $SERVER_NAME.certs.embedded.ovpn
+        echo "</key>" >> $SERVER_NAME.certs.embedded.ovpn
+        echo "<tls-auth>" >> $SERVER_NAME.certs.embedded.ovpn
+	sed -i -e '/<tls-auth>/r '$keys_dir'/ta.key' $SERVER_NAME.certs.embedded.ovpn
+        echo "</tls-auth>" >> $SERVER_NAME.certs.embedded.ovpn
         chmod -R a+rX .
     )
-
+    
+    
     echo "----"
     echo "Generated configuration files are in $TMPDIR/ !"
     echo "----"
