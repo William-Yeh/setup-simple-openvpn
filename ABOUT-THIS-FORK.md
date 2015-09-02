@@ -29,7 +29,7 @@ Google Compute Engine
 
 Amazon EC2
 
- - CentOS 6.6, 6.5, 7.0
+ - CentOS 6.6, 6.5 and CentOS 7.0 with systemd
 
  - Ubuntu 14.04 LTS
 
@@ -41,11 +41,8 @@ Amazon EC2
 1. Prepare CentOS environment:
 
    ```shell
-   $ # install EPEL repository (for OpenVPN)
-   $ sudo yum install epel-release
-
    $ # install utilities
-   $ sudo yum install git curl
+   $ sudo yum install git 
    ```
 
 2. Change to the parent directory to be installed. For example:

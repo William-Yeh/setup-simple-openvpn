@@ -131,7 +131,7 @@ fi
 #install openvpn, zip and dependencies
 if which apt-get 2>/dev/null
 then
-   apt-get -y install openvpn zip || {
+   apt-get -y install openvpn zip curl || {
     echo "============================================================"
     echo "Could not install openvpn and zip with apt-get. Huh?"
     echo "============================================================"
@@ -139,7 +139,11 @@ then
   }
 elif which yum 2>/dev/null
 then
-  yum -y install openvpn zip || {
+  yum -y install epel-release || {
+    echo "Could not install epel-release"
+    exit 1
+  }
+  yum -y install openvpn zip curl || {
     echo "============================================================"
     echo "Could not install openvpn and zip with yum."
     echo "Enable EPEL repository?"
@@ -355,9 +359,16 @@ echo "Make sure they are open in an external firewall if there is one."
 #enable openvpn at boot and start server!
 if which yum 2>/dev/null
 then
-  chkconfig openvpn on
+  if [ -d "/etc/systemd" ]; then
+    systemctl enable openvpn@openvpn.service 
+    service openvpn@openvpn start
+  else
+    chkconfig openvpn on
+    service openvpn start
+  fi
+else
+  #already enabled on debian/ubuntu after install. just start it.
+  service openvpn start
 fi
-
-service openvpn start
 
 exit 0
