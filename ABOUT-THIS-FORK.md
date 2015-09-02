@@ -14,9 +14,11 @@ ABOUT THIS FORK
 
 5. Add: `add-user.sh` tool to facilitate the process of adding new user using current server configuration.
 
-6. beef up cipher AES-256-CBC, auth SHA384, tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256:TLS-DHE-RSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-128-CBC-SHA256 , tls-version-min 1.2 supported from OpenVPN 2.3.4+ 
+6. beef up cipher AES-256-CBC, auth SHA384, tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256:TLS-DHE-RSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-128-CBC-SHA256 , tls-version-min 1.2 supported from OpenVPN 2.3.4+, [https://bettercrypto.org/static/applied-crypto-hardening.pdf](https://bettercrypto.org/static/applied-crypto-hardening.pdf)
 
 7. tls-auth pre shared key [https://community.openvpn.net/openvpn/wiki/Hardening](https://community.openvpn.net/openvpn/wiki/Hardening)
+
+8. certificates are embedded in an alternative ovpn file. it simplifies client configuration, skip unzipping files.
 
 ## Tested platforms
 
@@ -27,7 +29,7 @@ Google Compute Engine
 
 Amazon EC2
 
- - CentOS 6.6, 6.5
+ - CentOS 6.6, 6.5, 7.0
 
  - Ubuntu 14.04 LTS
 
@@ -40,7 +42,7 @@ Amazon EC2
 
    ```shell
    $ # install EPEL repository (for OpenVPN)
-   $ sudo rpm -iv http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+   $ sudo yum install epel-release
 
    $ # install utilities
    $ sudo yum install git curl
