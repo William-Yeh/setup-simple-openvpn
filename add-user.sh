@@ -107,7 +107,7 @@ function pack_client_conf() {
     trap 'RETVAL=$?; echo "ERROR"; do_error_exit '  ERR
 
     local keys_dir="$OPENVPN_CONF/easy-rsa/keys"
-    cp $keys_dir/$CLIENT_CN.key  $keys_dir/$CLIENT_CN.crt  $TMPDIR
+    cp $keys_dir/$CLIENT_CN.key  $keys_dir/$CLIENT_CN.crt $keys_dir/ta.key $TMPDIR
     cp $DEFAULT_CLIENT_DIR/ca-*.crt           $TMPDIR
     cp $DEFAULT_CLIENT_DIR/$SERVER_NAME.ovpn  $TMPDIR/$SERVER_NAME.ovpn
     sed -i -e "s/client1/$USER_NAME/"         $TMPDIR/$SERVER_NAME.ovpn
