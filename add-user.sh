@@ -7,6 +7,11 @@
 USER_NAME=$1
 OPENVPN_CONF=/etc/openvpn
 
+if [ `id -u` -ne 0 ]
+then
+  echo "Need root, try with sudo"
+  exit 0
+fi
 
 function do_error_exit {
     echo { \"status\": $RETVAL, \"error_line\": $BASH_LINENO }
